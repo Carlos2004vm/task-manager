@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: taskmanager-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3308:3306"
+    networks:
+      - taskmanager-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend FastAPI
+  backend:
+    build: ./backend
+    container_name: taskmanager-backend
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - taskmanager-network
+    volumes:
+      - ./backend/app:/app
+
+  # Frontend Angular
+  frontend:
+    build: ./frontend
+    container_name: taskmanager-frontend
+    restart: always
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    networks:
+      - taskmanager-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  mysql_data:
+
+networks:
+  taskmanager-network:
+    driver: bridge
