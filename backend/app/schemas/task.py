@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime, date
 from typing import Optional
-from ..models.task import PriorityEnum
+from models.task import PriorityEnum
 
 
 class TaskBase(BaseModel):

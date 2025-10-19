@@ -3,11 +3,11 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, date
 
-from ..database import get_db
-from ..models.user import User
-from ..models.task import Task
-from ..schemas.task import TaskCreate, TaskUpdate, TaskResponse
-from ..auth import get_current_active_user
+from database import get_db
+from models.user import User
+from models.task import Task
+from schemas.task import TaskCreate, TaskUpdate, TaskResponse
+from auth import get_current_active_user
 
 # Crear router para las rutas de tareas
 router = APIRouter(

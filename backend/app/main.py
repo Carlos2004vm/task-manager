@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
-from .database import engine, Base
-from .routes import auth_router, users_router, categories_router, tasks_router
+from database import engine, Base
+from routes import auth_router, users_router, categories_router, tasks_router
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)

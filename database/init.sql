@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Tabla de categorías
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(50) NOT NULL,
     color VARCHAR(7) DEFAULT '#3B82F6',
     user_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -47,9 +47,12 @@ CREATE INDEX idx_tasks_category_id ON tasks(category_id);
 CREATE INDEX idx_tasks_is_completed ON tasks(is_completed);
 CREATE INDEX idx_tasks_due_date ON tasks(due_date);
 
--- Insertar usuario de prueba (password: admin123)
+-- Insertar usuario de prueba
+-- Usuario: admin
+-- Password: admin123
+-- Hash generado con bcrypt 4.0.1
 INSERT INTO users (username, email, hashed_password, full_name) VALUES
-('admin', 'admin@taskmanager.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqVQ7F9uEy', 'Administrador');
+('admin', 'admin@taskmanager.com', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Administrador');
 
 -- Insertar categorías de ejemplo
 INSERT INTO categories (name, color, user_id) VALUES

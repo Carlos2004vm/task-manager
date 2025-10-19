@@ -17,7 +17,7 @@ class UserCreate(UserBase):
     Schema para crear un nuevo usuario
     Incluye la contraseña en texto plano (se encriptará en el backend)
     """
-    password: str = Field(..., min_length=6, description="Contraseña (mínimo 6 caracteres)")
+password: str = Field(..., min_length=6, max_length=72, description="Contraseña (mínimo 6, máximo 72 caracteres)")
 
 
 class UserUpdate(BaseModel):

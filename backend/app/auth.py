@@ -8,9 +8,9 @@ from sqlalchemy.orm import Session
 import os
 from dotenv import load_dotenv
 
-from .database import get_db
-from .models.user import User
-from .schemas.auth import TokenData
+from database import get_db
+from models.user import User
+from schemas.auth import TokenData
 
 # Cargar variables de entorno
 load_dotenv()
