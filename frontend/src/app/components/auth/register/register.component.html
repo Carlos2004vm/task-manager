@@ -1,0 +1,101 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <!-- Logo y título -->
+    <div class="auth-header">
+      <h1>📋 Task Manager</h1>
+      <p>Crea tu cuenta para comenzar</p>
+    </div>
+
+    <!-- Formulario de registro -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      
+      <!-- Campo de usuario -->
+      <div class="form-group">
+        <label for="username">Usuario *</label>
+        <input 
+          type="text" 
+          id="username" 
+          formControlName="username"
+          class="form-control"
+          placeholder="Elige un nombre de usuario"
+          [class.is-invalid]="submitted && f['username'].errors"
+        />
+        <div class="invalid-feedback" *ngIf="submitted && f['username'].errors">
+          <div *ngIf="f['username'].errors['required']">El usuario es requerido</div>
+          <div *ngIf="f['username'].errors['minlength']">Mínimo 3 caracteres</div>
+        </div>
+      </div>
+
+      <!-- Campo de email -->
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email"
+          class="form-control"
+          placeholder="tu@email.com"
+          [class.is-invalid]="submitted && f['email'].errors"
+        />
+        <div class="invalid-feedback" *ngIf="submitted && f['email'].errors">
+          <div *ngIf="f['email'].errors['required']">El email es requerido</div>
+          <div *ngIf="f['email'].errors['email']">Email inválido</div>
+        </div>
+      </div>
+
+      <!-- Campo de nombre completo -->
+      <div class="form-group">
+        <label for="full_name">Nombre Completo</label>
+        <input 
+          type="text" 
+          id="full_name" 
+          formControlName="full_name"
+          class="form-control"
+          placeholder="Tu nombre completo"
+        />
+      </div>
+
+      <!-- Campo de contraseña -->
+      <div class="form-group">
+        <label for="password">Contraseña *</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password"
+          class="form-control"
+          placeholder="Mínimo 6 caracteres"
+          [class.is-invalid]="submitted && f['password'].errors"
+        />
+        <div class="invalid-feedback" *ngIf="submitted && f['password'].errors">
+          <div *ngIf="f['password'].errors['required']">La contraseña es requerida</div>
+          <div *ngIf="f['password'].errors['minlength']">Mínimo 6 caracteres</div>
+        </div>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div class="alert alert-danger" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div class="alert alert-success" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <!-- Botón de enviar -->
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-block"
+        [disabled]="loading"
+      >
+        <span *ngIf="!loading">Registrarse</span>
+        <span *ngIf="loading">Creando cuenta...</span>
+      </button>
+
+      <!-- Link a login -->
+      <div class="auth-footer">
+        <p>¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión aquí</a></p>
+      </div>
+    </form>
+  </div>
+</div>

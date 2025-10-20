@@ -1,0 +1,199 @@
+<div class="dashboard-container">
+  <!-- Navbar superior -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>📋 Task Manager</h1>
+    </div>
+    <div class="navbar-menu">
+      <span class="user-name">Hola, {{ currentUser?.full_name || currentUser?.username }}</span>
+      <button class="btn btn-logout" (click)="logout()">
+        Cerrar Sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <div class="dashboard-content">
+    <!-- Tarjetas de estadísticas -->
+    <div class="stats-grid">
+      <div class="stat-card stat-total">
+        <div class="stat-icon">📝</div>
+        <div class="stat-info">
+          <h3>{{ stats?.total || 0 }}</h3>
+          <p>Total de Tareas</p>
+        </div>
+      </div>
+
+      <div class="stat-card stat-pending">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-info">
+          <h3>{{ stats?.pending || 0 }}</h3>
+          <p>Tareas Pendientes</p>
+        </div>
+      </div>
+
+      <div class="stat-card stat-completed">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <h3>{{ stats?.completed || 0 }}</h3>
+          <p>Tareas Completadas</p>
+        </div>
+      </div>
+
+      <div class="stat-card stat-overdue">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-info">
+          <h3>{{ stats?.overdue || 0 }}</h3>
+          <p>Tareas Vencidas</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de tareas -->
+    <div class="tasks-section">
+      <div class="section-header">
+        <h2>Mis Tareas</h2>
+        <button class="btn btn-primary" (click)="openTaskModal()">
+          + Nueva Tarea
+        </button>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters">
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'all'"
+          (click)="filterTasks('all')"
+        >
+          Todas ({{ stats?.total || 0 }})
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'pending'"
+          (click)="filterTasks('pending')"
+        >
+          Pendientes ({{ stats?.pending || 0 }})
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'completed'"
+          (click)="filterTasks('completed')"
+        >
+          Completadas ({{ stats?.completed || 0 }})
+        </button>
+      </div>
+
+      <!-- Lista de tareas -->
+      <div class="tasks-list" *ngIf="tasks.length > 0; else noTasks">
+        <div class="task-card" *ngFor="let task of tasks" [class.completed]="task.is_completed">
+          <div class="task-checkbox">
+            <input 
+              type="checkbox" 
+              [checked]="task.is_completed"
+              (change)="toggleTaskComplete(task)"
+            />
+          </div>
+          
+          <div class="task-content">
+            <h3 [class.strikethrough]="task.is_completed">{{ task.title }}</h3>
+            <p *ngIf="task.description">{{ task.description }}</p>
+            
+            <div class="task-meta">
+              <span class="priority-badge" [class]="'priority-' + task.priority">
+                {{ task.priority }}
+              </span>
+              <span class="due-date" *ngIf="task.due_date">
+                📅 {{ task.due_date | date: 'dd/MM/yyyy' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="task-actions">
+            <button class="btn-icon" (click)="editTask(task)" title="Editar">
+              ✏️
+            </button>
+            <button class="btn-icon" (click)="deleteTask(task)" title="Eliminar">
+              🗑️
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje cuando no hay tareas -->
+      <ng-template #noTasks>
+        <div class="no-tasks">
+          <div class="no-tasks-icon">📭</div>
+          <h3>No hay tareas</h3>
+          <p>¡Crea tu primera tarea para comenzar!</p>
+          <button class="btn btn-primary" (click)="openTaskModal()">
+            + Crear Tarea
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para crear/editar tarea (simple) -->
+<div class="modal" *ngIf="showTaskModal" (click)="closeTaskModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingTask ? 'Editar Tarea' : 'Nueva Tarea' }}</h2>
+      <button class="btn-close" (click)="closeTaskModal()">×</button>
+    </div>
+
+    <form [formGroup]="taskForm" (ngSubmit)="saveTask()" class="modal-body">
+      <div class="form-group">
+        <label for="title">Título *</label>
+        <input 
+          type="text" 
+          id="title" 
+          formControlName="title"
+          class="form-control"
+          placeholder="¿Qué necesitas hacer?"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Descripción</label>
+        <textarea 
+          id="description" 
+          formControlName="description"
+          class="form-control"
+          rows="3"
+          placeholder="Detalles adicionales..."
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="priority">Prioridad</label>
+          <select id="priority" formControlName="priority" class="form-control">
+            <option value="low">Baja</option>
+            <option value="medium">Media</option>
+            <option value="high">Alta</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="due_date">Fecha límite</label>
+          <input 
+            type="date" 
+            id="due_date" 
+            formControlName="due_date"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeTaskModal()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="taskForm.invalid || loading">
+          {{ editingTask ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
