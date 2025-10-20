@@ -62,10 +62,28 @@ export class LoginComponent implements OnInit {
         this.router.navigate([this.returnUrl]);
       },
       error: (error) => {
-        // Mostrar error
-        this.errorMessage = error.error?.detail || 'Error al iniciar sesión. Verifica tus credenciales.';
-        this.loading = false;
+      // Mostrar error
+      console.error('Login error:', error);
+      
+      if (error.error?.detail) {
+        // Si detail es un string
+        if (typeof error.error.detail === 'string') {
+          this.errorMessage = error.error.detail;
+        } 
+        // Si detail es un array (validación de FastAPI)
+        else if (Array.isArray(error.error.detail)) {
+          this.errorMessage = error.error.detail.map((e: any) => e.msg).join(', ');
+        }
+        // Si no, mensaje genérico
+        else {
+          this.errorMessage = 'Error al iniciar sesión. Verifica tus credenciales.';
+        }
+      } else {
+        this.errorMessage = 'Error al iniciar sesión. Verifica tus credenciales.';
       }
+      
+      this.loading = false;
+    }
     });
   }
 }

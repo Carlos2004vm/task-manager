@@ -66,10 +66,28 @@ export class RegisterComponent implements OnInit {
         }, 2000);
       },
       error: (error) => {
-        // Mostrar error
-        this.errorMessage = error.error?.detail || 'Error al crear la cuenta. Intenta nuevamente.';
-        this.loading = false;
+      // Mostrar error
+      console.error('Register error:', error);
+      
+      if (error.error?.detail) {
+        // Si detail es un string
+        if (typeof error.error.detail === 'string') {
+          this.errorMessage = error.error.detail;
+        } 
+        // Si detail es un array (validación de FastAPI)
+        else if (Array.isArray(error.error.detail)) {
+          this.errorMessage = error.error.detail.map((e: any) => e.msg).join(', ');
+        }
+        // Si no, mensaje genérico
+        else {
+          this.errorMessage = 'Error al crear la cuenta. Intenta nuevamente.';
+        }
+      } else {
+        this.errorMessage = 'Error al crear la cuenta. Intenta nuevamente.';
       }
+      
+      this.loading = false;
+    }
     });
   }
 }

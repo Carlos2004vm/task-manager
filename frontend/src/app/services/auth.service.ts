@@ -46,20 +46,29 @@ export class AuthService {
     return this.http.post<User>(`${this.apiUrl}/register`, userData);
   }
 
-  /**
-   * Iniciar sesión
-   */
-  login(credentials: LoginRequest): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
-        // Guardar token en localStorage
-        localStorage.setItem('access_token', response.access_token);
-        
-        // Obtener información del usuario actual
-        this.getCurrentUser().subscribe();
-      })
-    );
-  }
+/**
+ * Iniciar sesión
+ */
+login(credentials: LoginRequest): Observable<TokenResponse> {
+  // FastAPI OAuth2 requiere application/x-www-form-urlencoded
+  const body = new URLSearchParams();
+  body.set('username', credentials.username);
+  body.set('password', credentials.password);
+
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  };
+
+  return this.http.post<TokenResponse>(`${this.apiUrl}/login`, body.toString(), { headers }).pipe(
+    tap(response => {
+      // Guardar token en localStorage
+      localStorage.setItem('access_token', response.access_token);
+      
+      // Obtener información del usuario actual
+      this.getCurrentUser().subscribe();
+    })
+  );
+}
 
   /**
    * Obtener información del usuario actual
