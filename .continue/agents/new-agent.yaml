@@ -1,0 +1,21 @@
+name: Local Assistant
+version: 1.0.0
+schema: v1
+models:
+  - name: Claude 3.5 Sonnet
+    provider: bedrock
+    model: anthropic.claude-3-5-sonnet-20240620-v1:0
+    env:
+      region: us-east-1
+    roles:
+      - chat
+
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
+
