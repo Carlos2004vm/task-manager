@@ -4,6 +4,9 @@ FROM node:16-alpine
 # Establecer el directorio de trabajo
 WORKDIR /app
 
+# Instalar Angular CLI 16 globalmente
+RUN npm install -g @angular/cli@16
+
 # Copiar package.json y package-lock.json
 COPY package*.json ./
 
