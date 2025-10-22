@@ -426,3 +426,150 @@
     grid-template-columns: 1fr;
   }
 }
+/* Agregar estos estilos AL FINAL de tu archivo CSS existente */
+
+/* Estilos para el header con múltiples botones */
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Botón secundario (Plantilla) */
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón accent (Importar) */
+.btn-accent {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+  background-color: #138496;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal de resultado de importación */
+.import-result-modal {
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.import-summary {
+  padding: 20px 0;
+}
+
+.summary-item {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border-left: 4px solid #28a745;
+}
+
+.summary-item strong {
+  color: #495057;
+  margin-right: 10px;
+}
+
+/* Lista de tareas creadas */
+.tasks-created {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #d4edda;
+  border-radius: 5px;
+  border-left: 4px solid #28a745;
+}
+
+.tasks-created h4 {
+  color: #155724;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.tasks-created ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tasks-created li {
+  padding: 5px 0;
+  color: #155724;
+}
+
+.tasks-created li:before {
+  content: "✓ ";
+  color: #28a745;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+/* Lista de errores */
+.import-errors {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8d7da;
+  border-radius: 5px;
+  border-left: 4px solid #dc3545;
+}
+
+.import-errors h4 {
+  color: #721c24;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.import-errors ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.error-item {
+  padding: 5px 0;
+  color: #721c24;
+  font-size: 14px;
+}
+
+.error-item:before {
+  content: "⚠ ";
+  color: #dc3545;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+/* Responsive para botones */
+@media (max-width: 768px) {
+  .header-actions {
+    flex-wrap: wrap;
+  }
+  
+  .header-actions button {
+    flex: 1;
+    min-width: 120px;
+  }
+}

@@ -1,11 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, date
+import pandas as pd
+from io import BytesIO
 
 from database import get_db
 from models.user import User
 from models.task import Task
+from models.category import Category
 from schemas.task import TaskCreate, TaskUpdate, TaskResponse
 from auth import get_current_active_user
 
@@ -388,3 +392,213 @@ async def get_task_stats(
             "low": low_priority
         }
     }
+
+
+# ================================ 
+# ENDPOINT: IMPORTAR DESDE EXCEL 
+# ================================
+@router.post("/import-excel")
+async def import_tasks_from_excel(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Importar tareas desde archivo Excel
+    
+    Formato esperado del Excel:
+    - title (obligatorio): Título de la tarea
+    - description (opcional): Descripción
+    - priority (opcional): low, medium o high
+    - due_date (opcional): Formato YYYY-MM-DD
+    - category_name (opcional): Nombre de la categoría existente
+    
+    Args:
+        file: Archivo Excel (.xlsx o .xls)
+        current_user: Usuario autenticado
+        db: Sesión de base de datos
+        
+    Returns:
+        dict: Resumen de importación (tareas creadas y errores)
+    """
+    # Validar extensión del archivo
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Solo se aceptan archivos Excel (.xlsx, .xls)"
+        )
+    
+    try:
+        # Leer archivo Excel
+        contents = await file.read()
+        df = pd.read_excel(BytesIO(contents))
+        
+        # Validar que tenga columnas
+        if df.empty:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El archivo Excel está vacío"
+            )
+        
+        # Validar columna obligatoria
+        if 'title' not in df.columns:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El archivo debe contener al menos la columna 'title'"
+            )
+        
+        tasks_created = []
+        errors = []
+        
+        # Procesar cada fila
+        for index, row in df.iterrows():
+            try:
+                # Validar título
+                if pd.isna(row['title']) or str(row['title']).strip() == '':
+                    errors.append(f"Fila {index + 2}: El título es obligatorio")
+                    continue
+                
+                title = str(row['title']).strip()
+                
+                # Procesar descripción
+                description = None
+                if 'description' in df.columns and pd.notna(row['description']):
+                    description = str(row['description']).strip()
+                
+                # Procesar prioridad
+                priority = 'medium'
+                if 'priority' in df.columns and pd.notna(row['priority']):
+                    priority_value = str(row['priority']).lower().strip()
+                    if priority_value in ['low', 'medium', 'high']:
+                        priority = priority_value
+                    else:
+                        errors.append(f"Fila {index + 2}: Prioridad inválida '{row['priority']}'. Se usará 'medium'")
+                
+                # Procesar fecha límite
+                due_date = None
+                if 'due_date' in df.columns and pd.notna(row['due_date']):
+                    try:
+                        if isinstance(row['due_date'], str):
+                            due_date = datetime.strptime(row['due_date'], '%Y-%m-%d').date()
+                        else:
+                            due_date = pd.to_datetime(row['due_date']).date()
+                    except Exception as e:
+                        errors.append(f"Fila {index + 2}: Fecha inválida '{row['due_date']}'. Se omitirá la fecha")
+                
+                # Buscar categoría si existe
+                category_id = None
+                if 'category_name' in df.columns and pd.notna(row['category_name']):
+                    category_name = str(row['category_name']).strip()
+                    category = db.query(Category).filter(
+                        Category.name == category_name,
+                        Category.user_id == current_user.id
+                    ).first()
+                    
+                    if category:
+                        category_id = category.id
+                    else:
+                        errors.append(f"Fila {index + 2}: Categoría '{category_name}' no encontrada. Se creará sin categoría")
+                
+                # Crear tarea
+                new_task = Task(
+                    title=title,
+                    description=description,
+                    priority=priority,
+                    due_date=due_date,
+                    user_id=current_user.id,
+                    category_id=category_id,
+                    is_completed=False
+                )
+                
+                db.add(new_task)
+                tasks_created.append(title)
+                
+            except Exception as e:
+                errors.append(f"Fila {index + 2}: Error al procesar - {str(e)}")
+        
+        # Confirmar cambios en la base de datos
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Importación completada",
+            "tasks_created": len(tasks_created),
+            "tasks_list": tasks_created[:10],  # Mostrar solo las primeras 10
+            "total_rows": len(df),
+            "errors_count": len(errors),
+            "errors": errors[:10]  # Mostrar solo los primeros 10 errores
+        }
+        
+    except pd.errors.EmptyDataError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El archivo Excel está vacío o corrupto"
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error procesando archivo: {str(e)}"
+        )
+
+
+# ======================================= 
+# ENDPOINT: DESCARGAR PLANTILLA EXCEL 
+# =======================================
+@router.get("/download-template")
+async def download_excel_template(
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Descargar plantilla Excel para importar tareas
+    
+    Returns:
+        StreamingResponse: Archivo Excel con estructura de ejemplo
+    """
+    # Crear DataFrame con estructura de ejemplo
+    # Crear DataFrame con TUS datos personalizados
+    template_data = {
+        'title': [
+            'Tarea 1',
+            'Tarea 2',
+            'Tarea 3',
+            'Tarea 4',
+            'Tarea 5',
+            'Tarea 6',
+            'Tarea 7'
+        ],
+        'description': [
+            'Entregar Antes del 12',
+            'Hacerla antes del 10',
+            'Antes que terminen',
+            'Entregar Antes del 13',
+            'Hacerla antes del 11',
+            'Antes que terminen',
+            'Entregar Antes del 14'
+        ],
+        'priority': ['medium', 'low', 'high', 'medium', 'low', 'high', 'medium'],
+        'due_date': [
+            '2025-12-31',
+            '2026-01-01',
+            '2026-01-02',
+            '2026-01-03',
+            '2026-01-04',
+            '2026-01-05',
+            '2026-01-06'
+        ],
+    }
+    
+    df = pd.DataFrame(template_data)
+    
+    # Crear archivo Excel en memoria
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Tareas')
+    
+    output.seek(0)
+    
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=plantilla_tareas.xlsx"}
+    )

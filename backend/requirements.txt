@@ -32,3 +32,6 @@ python-dotenv==1.0.0
 
 # Validador de direcciones de correo electrónico (requerido por Pydantic EmailStr)
 email-validator==2.1.0
+openpyxl==3.1.2
+pandas==2.0.3
+python-multipart==0.0.6

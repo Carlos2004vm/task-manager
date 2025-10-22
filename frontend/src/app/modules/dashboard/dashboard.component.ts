@@ -24,6 +24,10 @@ export class DashboardComponent implements OnInit {
   editingTask: Task | null = null;
   loading = false;
 
+  // Modal de resultado de importación
+  showImportResultModal = false;
+  importResult: any = null;
+
   constructor(
     private authService: AuthService,
     private taskService: TaskService,
@@ -207,10 +211,90 @@ export class DashboardComponent implements OnInit {
   }
 
   /**
+   * Manejar selección de archivo Excel
+   */
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      // Validar tamaño del archivo (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('❌ El archivo es demasiado grande. Máximo 5MB');
+        return;
+      }
+
+      // Validar extensión
+      const validExtensions = ['.xlsx', '.xls'];
+      const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+      
+      if (!validExtensions.includes(fileExtension)) {
+        alert('❌ Por favor selecciona un archivo Excel válido (.xlsx o .xls)');
+        return;
+      }
+
+      this.importExcelFile(file);
+    }
+
+    // Limpiar input para poder seleccionar el mismo archivo de nuevo
+    event.target.value = '';
+  }
+
+  /**
+   * Importar archivo Excel
+   */
+  importExcelFile(file: File): void {
+    this.loading = true;
+    
+    this.taskService.importTasksFromExcel(file).subscribe({
+      next: (response) => {
+        this.loading = false;
+        this.importResult = response;
+        this.showImportResultModal = true;
+        
+        // Recargar tareas y estadísticas
+        this.loadTasks();
+        this.loadStats();
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error importando archivo:', error);
+        
+        let errorMessage = 'Error al importar archivo';
+        if (error.error && error.error.detail) {
+          errorMessage = error.error.detail;
+        }
+        
+        alert('❌ ' + errorMessage);
+      }
+    });
+  }
+
+  /**
+   * Cerrar modal de resultado de importación
+   */
+  closeImportResultModal(): void {
+    this.showImportResultModal = false;
+    this.importResult = null;
+  }
+
+  /**
+   * Descargar plantilla Excel
+   */
+  downloadTemplate(): void {
+    this.taskService.downloadExcelTemplate();
+     console.log('Descargando plantilla...');
+     setTimeout(() => {
+    console.log('✅ Plantilla descargada');
+  }, 1000
+  );
+  }
+
+  /**
    * Cerrar sesión
    */
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+
+
   }
 }

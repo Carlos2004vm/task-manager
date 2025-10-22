@@ -53,9 +53,26 @@
     <div class="tasks-section">
       <div class="section-header">
         <h2>Mis Tareas</h2>
-        <button class="btn btn-primary" (click)="openTaskModal()">
-          + Nueva Tarea
-        </button>
+        <div class="header-actions">
+          <!-- Botón Descargar Plantilla -->
+          
+          <!-- Botón Importar Excel -->
+          <button class="btn btn-accent" (click)="fileInput.click()" title="Importar tareas desde Excel">
+            📤 Importar Excel
+          </button>
+          <input 
+            #fileInput 
+            type="file" 
+            accept=".xlsx,.xls" 
+            (change)="onFileSelected($event)" 
+            style="display: none;"
+          />
+          
+          <!-- Botón Nueva Tarea -->
+          <button class="btn btn-primary" (click)="openTaskModal()">
+            + Nueva Tarea
+          </button>
+        </div>
       </div>
 
       <!-- Filtros -->
@@ -134,7 +151,7 @@
   </div>
 </div>
 
-<!-- Modal para crear/editar tarea (simple) -->
+<!-- Modal para crear/editar tarea -->
 <div class="modal" *ngIf="showTaskModal" (click)="closeTaskModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
@@ -195,5 +212,51 @@
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal de resultado de importación -->
+<div class="modal" *ngIf="showImportResultModal" (click)="closeImportResultModal()">
+  <div class="modal-content import-result-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ importResult?.success ? '✅ Importación Exitosa' : '❌ Error en Importación' }}</h2>
+      <button class="btn-close" (click)="closeImportResultModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="import-summary" *ngIf="importResult">
+        <div class="summary-item">
+          <strong>Tareas creadas:</strong> {{ importResult.tasks_created || 0 }}
+        </div>
+        <div class="summary-item">
+          <strong>Total de filas:</strong> {{ importResult.total_rows || 0 }}
+        </div>
+        <div class="summary-item" *ngIf="importResult.errors_count > 0">
+          <strong>Errores:</strong> {{ importResult.errors_count }}
+        </div>
+
+        <!-- Lista de tareas creadas -->
+        <div class="tasks-created" *ngIf="importResult.tasks_list && importResult.tasks_list.length > 0">
+          <h4>Tareas importadas:</h4>
+          <ul>
+            <li *ngFor="let taskName of importResult.tasks_list">{{ taskName }}</li>
+          </ul>
+        </div>
+
+        <!-- Lista de errores -->
+        <div class="import-errors" *ngIf="importResult.errors && importResult.errors.length > 0">
+          <h4>Errores encontrados:</h4>
+          <ul>
+            <li *ngFor="let error of importResult.errors" class="error-item">{{ error }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="closeImportResultModal()">
+          Cerrar
+        </button>
+      </div>
+    </div>
   </div>
 </div>
