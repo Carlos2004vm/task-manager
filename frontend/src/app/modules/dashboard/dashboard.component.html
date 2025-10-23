@@ -6,6 +6,9 @@
     </div>
     <div class="navbar-menu">
       <span class="user-name">Hola, {{ currentUser?.full_name || currentUser?.username }}</span>
+      <button class="btn btn-settings" (click)="goToSettings()">
+  ⚙️ Configuración
+      </button>
       <button class="btn btn-logout" (click)="logout()">
         Cerrar Sesión
       </button>

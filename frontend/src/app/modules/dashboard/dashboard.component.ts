@@ -288,6 +288,14 @@ export class DashboardComponent implements OnInit {
   );
   }
 
+    /**
+   * Redirigir al módulo de configuración
+   */
+  goToSettings(): void {
+    this.router.navigate(['/dashboard/settings']);
+  }
+
+
   /**
    * Cerrar sesión
    */

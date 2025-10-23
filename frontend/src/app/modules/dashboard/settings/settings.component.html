@@ -1,0 +1,248 @@
+{{ userInitial }}
+
+<p>settings works!</p>
+
+<div class="settings-container">
+  <!-- Header -->
+  <div class="settings-header">
+    <button class="btn-back" (click)="goBack()">
+      ← Volver al Dashboard
+    </button>
+    <h1>⚙️ Configuración de Cuenta</h1>
+    <p>Administra tu perfil y seguridad</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="settings-tabs">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'profile'"
+      (click)="switchTab('profile')"
+    >
+      👤 Perfil
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'security'"
+      (click)="switchTab('security')"
+    >
+      🔒 Seguridad
+    </button>
+  </div>
+
+  <!-- Contenido -->
+  <div class="settings-content">
+    <!-- TAB: PERFIL -->
+    <div class="tab-panel" *ngIf="activeTab === 'profile'">
+      <!-- Foto de perfil -->
+      <div class="profile-picture-section">
+        <h2>Foto de Perfil</h2>
+        
+        <div class="picture-upload">
+          <div class="current-picture">
+            <div class="avatar-large">
+              <img 
+                *ngIf="previewUrl || profilePictureUrl" 
+                [src]="previewUrl || profilePictureUrl" 
+                alt="Foto de perfil"
+              />
+              <div *ngIf="!previewUrl && !profilePictureUrl" class="avatar-placeholder">
+                <!-- ... existing code ... -->
+
+{{ currentUser?.username ? (currentUser?.username?.charAt(0)?.toUpperCase()) : '' }}
+
+<!-- ... rest of code ... -->
+
+
+              </div>
+            </div>
+          </div>
+
+          <div class="picture-actions" *ngIf="!selectedFile">
+            <input 
+              type="file" 
+              #fileInput 
+              accept="image/*" 
+              (change)="onFileSelected($event)"
+              style="display: none"
+            />
+            <button class="btn btn-primary" (click)="fileInput.click()">
+              📷 Seleccionar Imagen
+            </button>
+            <button 
+              class="btn btn-danger" 
+              *ngIf="profilePictureUrl"
+              (click)="deleteProfilePicture()"
+              [disabled]="loading"
+            >
+              🗑️ Eliminar Foto
+            </button>
+          </div>
+
+          <div class="picture-actions" *ngIf="selectedFile">
+            <button 
+              class="btn btn-success" 
+              (click)="uploadProfilePicture()"
+              [disabled]="loading"
+            >
+              ✅ Guardar Foto
+            </button>
+            <button 
+              class="btn btn-secondary" 
+              (click)="cancelImageSelection()"
+              [disabled]="loading"
+            >
+              ❌ Cancelar
+            </button>
+          </div>
+
+          <p class="help-text">
+            Formatos aceptados: JPG, PNG, WEBP. Tamaño máximo: 5MB
+          </p>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Información del perfil -->
+      <div class="profile-info-section">
+        <h2>Información Personal</h2>
+        
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+          <div class="form-group">
+            <label for="username">Nombre de Usuario</label>
+            <input 
+              type="text" 
+              id="username" 
+              class="form-control"
+              [value]="currentUser?.username"
+              disabled
+            />
+            <small class="help-text">El nombre de usuario no puede ser modificado</small>
+          </div>
+
+          <div class="form-group">
+            <label for="full_name">Nombre Completo</label>
+            <input 
+              type="text" 
+              id="full_name" 
+              formControlName="full_name"
+              class="form-control"
+              placeholder="Tu nombre completo"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Correo Electrónico *</label>
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email"
+              class="form-control"
+              placeholder="tu@email.com"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Teléfono</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              formControlName="phone"
+              class="form-control"
+              placeholder="+57 300 123 4567"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="bio">Biografía</label>
+            <textarea 
+              id="bio" 
+              formControlName="bio"
+              class="form-control"
+              rows="4"
+              placeholder="Cuéntanos un poco sobre ti..."
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              class="btn btn-primary btn-large"
+              [disabled]="profileForm.invalid || loading"
+            >
+              💾 Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB: SEGURIDAD -->
+    <div class="tab-panel" *ngIf="activeTab === 'security'">
+      <div class="security-section">
+        <h2>Cambiar Contraseña</h2>
+        <p>Actualiza tu contraseña para mantener tu cuenta segura</p>
+        
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+          <div class="form-group">
+            <label for="current_password">Contraseña Actual *</label>
+            <input 
+              type="password" 
+              id="current_password" 
+              formControlName="current_password"
+              class="form-control"
+              placeholder="Tu contraseña actual"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="new_password">Nueva Contraseña *</label>
+            <input 
+              type="password" 
+              id="new_password" 
+              formControlName="new_password"
+              class="form-control"
+              placeholder="Mínimo 6 caracteres"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="confirm_password">Confirmar Nueva Contraseña *</label>
+            <input 
+              type="password" 
+              id="confirm_password" 
+              formControlName="confirm_password"
+              class="form-control"
+              placeholder="Repite la nueva contraseña"
+            />
+            <small class="error-text" *ngIf="passwordForm.errors?.['mismatch'] && passwordForm.get('confirm_password')?.touched">
+              Las contraseñas no coinciden
+            </small>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              class="btn btn-primary btn-large"
+              [disabled]="passwordForm.invalid || loading"
+            >
+              🔐 Cambiar Contraseña
+            </button>
+          </div>
+        </form>
+
+        <div class="security-tips">
+          <h3>💡 Consejos de Seguridad</h3>
+          <ul>
+            <li>Usa una contraseña única y fuerte</li>
+            <li>Incluye letras, números y símbolos</li>
+            <li>Cambia tu contraseña regularmente</li>
+            <li>No compartas tu contraseña con nadie</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 

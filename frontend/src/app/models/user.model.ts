@@ -9,6 +9,11 @@ export interface User {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+
+  // ✅ Campos opcionales usados en SettingsComponent
+  phone?: string;
+  bio?: string;
+  profile_picture?: string;
 }
 
 /**

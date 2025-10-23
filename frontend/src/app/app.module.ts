@@ -8,13 +8,15 @@ import { AppComponent } from './app.component';
 
 // Interceptors
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
+import { SettingsComponent } from './modules/dashboard/settings/settings.component';
 
 /**
  * Módulo principal de la aplicación
  */
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    SettingsComponent
   ],
   imports: [
     BrowserModule,
