@@ -4,34 +4,27 @@ fastapi==0.104.1
 # Servidor ASGI de alto rendimiento para ejecutar FastAPI
 uvicorn[standard]==0.24.0
 
-# ORM (Object-Relational Mapping) para interactuar con bases de datos relacionales
+# ORM para interactuar con bases de datos relacionales
 sqlalchemy==2.0.23
 
 # Driver para conectar Python con MySQL/MariaDB
 pymysql==1.1.0
 
-# Librería para crear, firmar y validar tokens JWT (JSON Web Tokens) para autenticación
+# Autenticación y encriptación
 python-jose[cryptography]==3.3.0
-
-# Librería para encriptar y verificar contraseñas usando el algoritmo bcrypt
-# IMPORTANTE: Versiones específicas para compatibilidad
 bcrypt==4.0.1
 passlib==1.7.4
 
-# Utilidad para recibir archivos y datos de formularios en FastAPI
+# Formularios y archivos
 python-multipart==0.0.6
 
-# Librería de validación de datos y serialización con type hints
+# Validación y configuración
 pydantic==2.5.0
-
-# Extensión de Pydantic para manejar configuraciones desde variables de entorno
 pydantic-settings==2.1.0
-
-# Librería para cargar variables de entorno desde archivos .env
 python-dotenv==1.0.0
-
-# Validador de direcciones de correo electrónico (requerido por Pydantic EmailStr)
 email-validator==2.1.0
+
+# Excel y análisis de datos
 openpyxl==3.1.2
-pandas==2.0.3
-python-multipart==0.0.6
+pandas==2.2.2
+numpy==1.26.4
